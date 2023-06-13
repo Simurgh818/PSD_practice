@@ -71,7 +71,7 @@ ylabel("Power (log)")
 
 %% Preprocess the iEEG recording and a template: 2015 Horak method
 f_down = round(params.Fs/200);
-X_raw = downsample(temp_data_filt,f_down);
+X_raw = downsample(temp_data_filt,f_down,0);
 T_preproc = 1/200;
 L_preproc = size(X_raw);
 t_preproc = (0:L_preproc(1)-1)*T_preproc(1);
@@ -107,27 +107,51 @@ title("diff")
 X_preproc_diff = diff(X_raw);
 X_preproc_sqr = sign(X_preproc_diff).*power(X_preproc_diff,2);
 X_preproc_smooth = movmean(X_preproc_sqr,10);
+% figure(3)
+% subplot(4,1,1)
+% plot(t_preproc, X_raw)
+% xlabel("time (sec)")
+% ylabel("Amp (uV)")
+% title("raw")
+% 
+% subplot(4,1,2)
+% plot(t_preproc(1:end-1), X_preproc_diff)
+% xlabel("time (sec)")
+% ylabel("Amp (uV)")
+% title("diff")
+% 
+% subplot(4,1,3)
+% plot(t_preproc(1:end-1), X_preproc_sqr)
+% xlabel("time (sec)")
+% ylabel("Amp (uV)")
+% title("sqr")
+% 
+% subplot(4,1,4)
+% plot(t_preproc(1:end-1), X_preproc_smooth)
+% xlabel("time (sec)")
+% ylabel("Amp (uV)")
+% title("movmean")
+%% covolve the signal with a triangular template
+triangle_win = triang(200*.06);
+template = conv(triangle_win,kernel,"same");
+
+X_ccorr = conv(X_preproc, template, "same" );
+
 figure(3)
-subplot(4,1,1)
-plot(t_preproc, X_raw)
-xlabel("time (sec)")
-ylabel("Amp (uV)")
-title("raw")
+subplot(2,2,1)
+plot(1:12, template)
+xlabel("sample")
+ylabel("y")
 
-subplot(4,1,2)
-plot(t_preproc(1:end-1), X_preproc_diff)
+subplot(2,2,2)
+plot(t_preproc, X_preproc)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
-title("diff")
+title("X preproc")
 
-subplot(4,1,3)
-plot(t_preproc(1:end-1), X_preproc_sqr)
+subplot(2,2,3)
+plot(t_preproc, X_ccorr)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
-title("sqr")
-
-subplot(4,1,4)
-plot(t_preproc(1:end-1), X_preproc_smooth)
-xlabel("time (sec)")
-ylabel("Amp (uV)")
-title("movmean")
+title("X ccrorr")
+ 
