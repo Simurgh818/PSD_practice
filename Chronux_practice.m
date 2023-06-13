@@ -138,18 +138,26 @@ template = conv(triangle_win,kernel,"same");
 X_ccorr = conv(X_preproc, template, "same" );
 
 figure(3)
+
 subplot(2,2,1)
-plot(1:12, template)
+plot(1:12, triangle_win)
 xlabel("sample")
+xlim([1 12])
 ylabel("y")
 
 subplot(2,2,2)
+plot(1:12, template)
+xlabel("sample")
+xlim([1 12])
+ylabel("y")
+
+subplot(2,2,3)
 plot(t_preproc, X_preproc)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
 title("X preproc")
 
-subplot(2,2,3)
+subplot(2,2,4)
 plot(t_preproc, X_ccorr)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
