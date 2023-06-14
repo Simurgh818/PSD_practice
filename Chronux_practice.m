@@ -178,7 +178,7 @@ med_mov_stdDev = median(mov_std_dev);
 X_ccorr_norm = normalize(X_ccorr,'scale',med_mov_stdDev);
 
 %% Step 4: label local peaks above an emperical threshold
-
+addpath("C:\Program Files\MATLAB\R2022a\toolbox\signal\signal\");
 [X_pks, X_loc] = findpeaks(X_ccorr_norm,"MinPeakHeight",2.5); % , "MinPeakHeight",2.5
 
 figure(4)
