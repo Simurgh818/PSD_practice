@@ -177,15 +177,28 @@ mov_std_dev = movstd(X_ccorr,200);
 med_mov_stdDev = median(mov_std_dev);
 X_ccorr_norm = normalize(X_ccorr,'scale',med_mov_stdDev);
 
+%% Step 4: label local peaks above an emperical threshold
+
+[X_pks, X_loc] = findpeaks(X_ccorr_norm,"MinPeakHeight",2.5); % , "MinPeakHeight",2.5
+
 figure(4)
-subplot(1,2,1)
+subplot(2,2,1)
 plot(t_preproc, mov_std_dev)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
 title("moving std dev")
 
-subplot(1,2,2)
+subplot(2,2,2)
 plot(t_preproc, X_ccorr_norm)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
-title("Xccorr_norm = normalize(Xccorr, median stdDev)")
+title("Xccorr norm = normalize(Xccorr, median stdDev)")
+
+subplot(2,2,3)
+hold on
+plot(t_preproc, X_ccorr_norm)
+scatter(X_loc/200,X_pks)        
+xlabel("time (sec)")
+ylabel("Amp (uV)")
+title("Xccorr norm with peaks annotated")
+hold off
