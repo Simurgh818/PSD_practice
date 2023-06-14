@@ -38,6 +38,7 @@ subplot(2,2,1)
 plot(t,temp_data)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
+title("x raw")
 
 % params.Fs = data_info.samples/ data_info.duration;
 params.fpass = [0.1 500];
@@ -50,6 +51,7 @@ subplot(2,2,2)
 plot(f,log10(S));
 xlabel("freq (Hz)")
 ylabel("Power (log)")
+title("X freq spectrogram")
 
 % Filter line noise
 
@@ -64,12 +66,15 @@ subplot(2,2,3)
 plot(t,temp_data_filt)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
+title("x filterd 60 Hz line noise")
 subplot(2,2,4)
 plot(f_filt,log10(S_filt));
 xlabel("freq (Hz)")
 ylabel("Power (log)")
+title("X freq spectrogram")
+%% IED detection: 2015 Horak method
+% Step 1: Preprocess the iEEG recording and a template 
 
-%% Preprocess the iEEG recording and a template: 2015 Horak method
 f_down = round(params.Fs/200);
 X_raw = downsample(temp_data_filt,f_down,0);
 T_preproc = 1/200;
@@ -85,22 +90,25 @@ subplot(2,2,1)
 plot(t_preproc, X_raw)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
+title("X raw downsampled to 200 Hz")
+
 subplot(2,2,2)
 plot([1,2,3,4],kernel)
 xlabel("x")
 ylabel("y")
+title("kernel")
 
 subplot(2,2,3)
 plot(t_preproc, X_preproc)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
-title("conv")
+title("conv(Xraw, kernel)")
 
 subplot(2,2,4)
-plot(t_preproc(1:end-1), diff(X_preproc))
+plot(t_preproc(1:end-1), diff(X_raw))
 xlabel("time (sec)")
 ylabel("Amp (uV)")
-title("diff")
+title("diff(Xraw)")
 %% 2009 Nonclercq preprocessing method: 
 % instead of convolution - derivative > squaring > moving window integration
 
@@ -131,35 +139,53 @@ X_preproc_smooth = movmean(X_preproc_sqr,10);
 % xlabel("time (sec)")
 % ylabel("Amp (uV)")
 % title("movmean")
-%% covolve the signal with a triangular template
+%% Step2: covolve the signal with a triangular template
 triangle_win = triang(200*.06);
 template = conv(triangle_win,kernel,"same");
 
 X_ccorr = conv(X_preproc, template, "same" );
 
 figure(3)
-
 subplot(2,2,1)
 plot(1:12, triangle_win)
 xlabel("sample")
 xlim([1 12])
 ylabel("y")
+title("triangular window")
 
 subplot(2,2,2)
 plot(1:12, template)
 xlabel("sample")
 xlim([1 12])
 ylabel("y")
+title("template = conv(triangleWin, kernel)")
 
 subplot(2,2,3)
 plot(t_preproc, X_preproc)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
-title("X preproc")
+title("Xconv = conv(Xraw, kernel)")
 
 subplot(2,2,4)
 plot(t_preproc, X_ccorr)
 xlabel("time (sec)")
 ylabel("Amp (uV)")
-title("X ccrorr")
- 
+title("Xccorr = conv(Xconv, template)")
+%% Step 3: Normalize the cross-corrolated by the median std dev. from 1 sec sliding window
+% 1 sec sliding window: for 200 Hz signal is a 200 sample wide window
+mov_std_dev = movstd(X_ccorr,200);
+med_mov_stdDev = median(mov_std_dev);
+X_ccorr_norm = normalize(X_ccorr,'scale',med_mov_stdDev);
+
+figure(4)
+subplot(1,2,1)
+plot(t_preproc, mov_std_dev)
+xlabel("time (sec)")
+ylabel("Amp (uV)")
+title("moving std dev")
+
+subplot(1,2,2)
+plot(t_preproc, X_ccorr_norm)
+xlabel("time (sec)")
+ylabel("Amp (uV)")
+title("Xccorr_norm = normalize(Xccorr, median stdDev)")
