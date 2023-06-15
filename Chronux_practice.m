@@ -185,7 +185,8 @@ if exist(signal_findpeaks_path,"dir")
 else
     addpath("C:\Program Files\MATLAB\R2021b\toolbox\signal\signal")
 end
-[X_pks, X_loc] = findpeaks(X_ccorr_norm,"MinPeakHeight",2.5); % , "MinPeakHeight",2.5
+std_dev_norm = std(X_ccorr_norm);
+[X_pks, X_loc] = findpeaks(X_ccorr_norm,"MinPeakHeight",3*std_dev_norm); % , "MinPeakHeight",2.5
 
 figure(4)
 subplot(2,2,1)
