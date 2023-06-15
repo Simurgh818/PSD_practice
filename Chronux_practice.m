@@ -5,6 +5,7 @@ root_dir="C:\Users\sinad\OneDrive - Emory University\Patient Temp\R1638E_RepFR1_
 % openning the file 
 file_path = fullfile(root_dir , "eeg_data_reduced_chA.edf");
 if isfile(file_path)
+    addpath("C:\Users\sinad\OneDrive - Georgia Institute of Technology\DrGross\Lou\Analysis_CommonCode\downloadedFunctions\edfread_v2.10.0.1\");
     [data_info, data] = edfread(file_path); 
 % data_info = edfinfo(file_path);
 end
@@ -46,7 +47,7 @@ params.err = [1 0.05];
 params.trialave = 0;
 params.tapers=[3 5];
 % Plotting PSD using mtspectrumc funciton
-[S,f,Serr]=mtspectrumc(temp_data, params); 
+[S,f,~]=mtspectrumc(temp_data, params); 
 subplot(2,2,2)
 plot(f,log10(S));
 xlabel("freq (Hz)")
@@ -178,7 +179,12 @@ med_mov_stdDev = median(mov_std_dev);
 X_ccorr_norm = normalize(X_ccorr,'scale',med_mov_stdDev);
 
 %% Step 4: label local peaks above an emperical threshold
-addpath("C:\Program Files\MATLAB\R2022a\toolbox\signal\signal\");
+signal_findpeaks_path = "C:\Program Files\MATLAB\R2022a\toolbox\signal\signal\";
+if exist(signal_findpeaks_path,"dir")
+    addpath(signal_findpeaks_path);
+else
+    addpath("C:\Program Files\MATLAB\R2021b\toolbox\signal\signal")
+end
 [X_pks, X_loc] = findpeaks(X_ccorr_norm,"MinPeakHeight",2.5); % , "MinPeakHeight",2.5
 
 figure(4)
