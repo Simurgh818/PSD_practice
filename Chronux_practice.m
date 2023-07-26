@@ -32,8 +32,8 @@ end
 % https://github.com/Willie-Lab/Analysis_FlickerProject/blob/bb191838d685c2822714c2d83fac4c216ffb1cec/Analysis/run_PSD_flicker.m 
 
 T = 1/params.Fs;
-L = size(temp_data);
-t = (0:L(1)-1)*T(1);
+[L,~] = size(temp_data);
+t = (0:L-1)*T(1);
 figure(1)
 subplot(2,2,1)
 plot(t,temp_data)
@@ -48,11 +48,24 @@ params.trialave = 0;
 params.tapers=[3 5];
 % Plotting PSD using mtspectrumc funciton
 [S,f,~]=mtspectrumc(temp_data, params); 
+
+Y = fft(temp_data);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+f2 = params.Fs*(0:(L/2))/L;
+
 subplot(2,2,2)
-plot(f,log10(S));
-xlabel("freq (Hz)")
-ylabel("Power (log)")
-title("X freq spectrogram")
+plot(f2,P1) 
+title('Single-Sided Amplitude Spectrum of X(t)')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
+
+
+% plot(f,log10(S));
+% xlabel("freq (Hz)")
+% ylabel("Power (log)")
+% title("X freq spectrogram")
 
 % Filter line noise
 
