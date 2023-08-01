@@ -59,7 +59,7 @@ subplot(2,2,2)
 plot(f2,P1) 
 title('Single-Sided Amplitude Spectrum of X(t)')
 xlabel('f (Hz)')
-ylabel('|P1(f)|')
+ylabel('|P1 (f)|')
 
 
 % plot(f,log10(S));
